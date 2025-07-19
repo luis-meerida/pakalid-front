@@ -24,22 +24,41 @@ const validateRFC = (_, value) => {
 function Step4FiscalData({ onPrev, onFinish, initialValues }) {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [taxRegimes, setTaxRegimes] = useState([]);
+  const [cfdiUses, setCfdiUses] = useState([]);
 
   // Cargar valores iniciales
   useEffect(() => {
-    form.resetFields();
-    if (initialValues?.fiscal) {
-      form.setFieldsValue({
-        businessName: initialValues.fiscal.businessName || '',
-        rfc: initialValues.fiscal.rfc || '',
-        billingEmail: initialValues.fiscal.billingEmail || '',
-        fiscalAddress: initialValues.fiscal.fiscalAddress || '',
-        fiscalZipCode: initialValues.fiscal.fiscalZipCode || '',
-        regime: initialValues.fiscal.regime || undefined,
-        cfdiUse: initialValues.fiscal.cfdiUse || undefined
-      });
+  form.resetFields();
+
+  if (initialValues?.fiscal) {
+    form.setFieldsValue({
+      businessName: initialValues.fiscal.businessName || '',
+      rfc: initialValues.fiscal.rfc || '',
+      billingEmail: initialValues.fiscal.billingEmail || '',
+      fiscalAddress: initialValues.fiscal.fiscalAddress || '',
+      fiscalZipCode: initialValues.fiscal.fiscalZipCode || '',
+      regime: initialValues.fiscal.regime || undefined,
+      cfdiUse: initialValues.fiscal.cfdiUse || undefined
+    });
+  }
+
+  async function fetchCatalogs() {
+    try {
+      const [regimesRes, cfdiUsesRes] = await Promise.all([
+        getTaxRegimes(),
+        getCfdiUses()
+      ]);
+      setTaxRegimes(regimesRes.data);
+      setCfdiUses(cfdiUsesRes.data);
+    } catch (error) {
+      console.error('Error al cargar catálogos fiscales', error);
+      message.error('No se pudieron cargar los catálogos fiscales');
     }
-  }, [initialValues, form]);
+  }
+
+  fetchCatalogs();
+}, [initialValues, form]);
 
   const handleSubmit = async (values) => {
     setLoading(true);
@@ -198,12 +217,11 @@ function Step4FiscalData({ onPrev, onFinish, initialValues }) {
                 optionFilterProp="children"
                 showSearch
               >
-                <Option value="601">General de Ley Personas Morales</Option>
-                <Option value="603">Personas Morales con Fines no Lucrativos</Option>
-                <Option value="605">Sueldos y Salarios</Option>
-                <Option value="606">Arrendamiento</Option>
-                <Option value="607">Enajenación de Bienes</Option>
-                <Option value="608">Demás ingresos</Option>
+                {taxRegimes.map((regime) => (
+                  <Option key={regime.code} value={regime.code}>
+                    {regime.code} - {regime.description}
+                  </Option>
+                ))}
               </Select>
             </Form.Item>
           </Col>
@@ -218,12 +236,11 @@ function Step4FiscalData({ onPrev, onFinish, initialValues }) {
                 optionFilterProp="children"
                 showSearch
               >
-                <Option value="G01">Adquisición de mercancías</Option>
-                <Option value="G02">Devoluciones/descuentos</Option>
-                <Option value="G03">Gastos en general</Option>
-                <Option value="I01">Construcciones</Option>
-                <Option value="D01">Honorarios médicos</Option>
-                <Option value="P01">Por definir</Option>
+                {cfdiUses.map((cfdi) => (
+                  <Option key={cfdi.code} value={cfdi.code}>
+                    {cfdi.code} - {cfdi.description}
+                  </Option>
+                ))}
               </Select>
             </Form.Item>
           </Col>
@@ -235,6 +252,7 @@ function Step4FiscalData({ onPrev, onFinish, initialValues }) {
             onClick={handlePrev} 
             style={{ marginRight: 8 }}
           >
+          
             Anterior (Datos de Usuario)
           </Button>
           <Button 
