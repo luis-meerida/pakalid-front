@@ -12,9 +12,11 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
 });
 
+//prueba rápida aver
+
 function Step2Location({ onNext, onPrev, initialValues }) {
   const [form] = Form.useForm();
-  const [position, setPosition] = useState([19.4326, -99.1332]); // Posición inicial (CDMX)
+  const [position, setPosition] = useState([19.4326, -99.13321]); // Posición inicial (CDMX)
   const mapRef = useRef(null);
   const markerRef = useRef(null);
 
