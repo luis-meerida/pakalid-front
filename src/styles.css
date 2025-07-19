@@ -1,0 +1,28 @@
+.site-layout-content {
+  min-height: 280px;
+  padding: 24px;
+  background: #fff;
+}
+
+.ant-layout {
+  min-height: 100vh;
+}
+
+.ant-steps {
+  max-width: 800px;
+  margin: 0 auto 32px !important;
+}
+
+.ant-card {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.ant-form-item-label label {
+  font-weight: 500;
+}
+
+h4 {
+  margin-bottom: 16px;
+  font-weight: 500;
+}
