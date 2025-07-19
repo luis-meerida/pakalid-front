@@ -16,7 +16,7 @@ L.Icon.Default.mergeOptions({
 
 function Step2Location({ onNext, onPrev, initialValues }) {
   const [form] = Form.useForm();
-  const [position, setPosition] = useState([19.4326, -99.13321]); // Posición inicial (CDMX)
+  const [position, setPosition] = useState([19.4326, -99.1332]); // Posición inicial (CDMX)
   const mapRef = useRef(null);
   const markerRef = useRef(null);
 

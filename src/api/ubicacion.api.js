@@ -1,7 +1,7 @@
 // ubicacion.api.js
 import axios from 'axios';
 
-const API = 'http://localhost:3001/ubicacion';
+const API = 'http://localhost:3000/ubicacion';
 
 export const getDefaultPais = () => axios.get(`${API}/pais-default`);
 
