@@ -330,6 +330,7 @@ useEffect(() => {
 
     message.success('Prospecto creado correctamente');
     onNext(response.data); // continúa al siguiente paso
+    console.log('Respuesta del backend:', response.data);
   } catch (error) {
     console.error('Error al crear el prospecto:', error);
     message.error('Error al enviar los datos al servidor');
@@ -482,16 +483,16 @@ useEffect(() => {
               rules={[{ required: true, message: 'Seleccione una ciudad/municipio' }]}
             >
               <Select
-                value={ciudad}
-                onChange={(value) => setCiudad(value)}
-                disabled={!ciudades.length}
-              >
-                {ciudades.map((c) => (
-                  <Option key={c.id} value={c.name}>
-                    {c.name}
-                  </Option>
-                ))}
-              </Select>
+              value={ciudad}
+              onChange={(value) => setCiudad(value)}
+              disabled={!ciudades.length}
+            >
+              {ciudades.map((c) => (
+                <Option key={c.id} value={c.id}>
+                  {c.name}
+                </Option>
+              ))}
+            </Select>
             </Form.Item>
           </Col>
         </Row>
