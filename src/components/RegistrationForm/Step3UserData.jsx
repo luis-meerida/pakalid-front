@@ -14,15 +14,12 @@ function Step3UserData({ onNext, onPrev, initialValues }) {
   useEffect(() => {
     if (initialValues?.user) {
       const { avatar, ...userData } = initialValues.user;
-      
       form.setFieldsValue({
         ...userData,
         birthDate: userData.birthDate ? moment(userData.birthDate) : null
       });
 
-      // Manejo mejorado del avatar
       if (avatar) {
-        // Caso 1: avatar es una URL string (al retroceder)
         if (typeof avatar === 'string') {
           setFileList([{
             uid: '-1',
@@ -30,29 +27,60 @@ function Step3UserData({ onNext, onPrev, initialValues }) {
             status: 'done',
             url: avatar
           }]);
-        } 
-        // Caso 2: avatar es un objeto con URL (al avanzar)
-        else if (avatar.url) {
+        } else if (avatar.url) {
           setFileList([{
             uid: '-1',
             name: 'avatar.png',
             status: 'done',
             url: avatar.url
           }]);
-        }
-        // Caso 3: avatar es un archivo subido (originFileObj)
-        else if (avatar.originFileObj) {
+        } else if (avatar.originFileObj) {
           setFileList([{
             uid: avatar.uid || '-1',
             name: avatar.name || 'avatar.png',
             status: 'done',
             originFileObj: avatar.originFileObj,
-            url: URL.createObjectURL(avatar.originFileObj) // Crear URL temporal
+            url: URL.createObjectURL(avatar.originFileObj)
           }]);
         }
       }
     }
   }, [initialValues, form]);
+
+  // Guardar en localStorage automáticamente
+  useEffect(() => {
+    const saveUserData = () => {
+      const values = form.getFieldsValue();
+
+      let avatarPath = '';
+      if (fileList.length > 0) {
+        const file = fileList[0];
+        if (file.originFileObj) {
+          avatarPath = file.name;
+        } else if (file.url) {
+          avatarPath = file.url;
+        }
+      }
+
+      const userData = {
+        email: values.email || '',
+        name: values.firstName || '',
+        last_name: values.lastName || '',
+        birthdate: values.birthDate ? values.birthDate.format('YYYY-MM-DD') : '',
+        avatar_path: avatarPath,
+        fk_gender_id: values.gender === 'male' ? 1 : values.gender === 'female' ? 2 : 3,
+        fk_prospect_id: 0
+      };
+
+      localStorage.setItem('prospectUserData', JSON.stringify(userData));
+    };
+
+    const unsubscribe = form.subscribe?.(() => {
+      saveUserData();
+    });
+
+    saveUserData();
+  }, [form, fileList]);
 
   const beforeUpload = (file) => {
     const isImage = file.type?.startsWith('image/');
@@ -60,13 +88,11 @@ function Step3UserData({ onNext, onPrev, initialValues }) {
       message.error('Solo se permiten imágenes!');
       return Upload.LIST_IGNORE;
     }
-    
     const isLt2M = file.size / 1024 / 1024 < 2;
     if (!isLt2M) {
       message.error('La imagen debe ser menor a 2MB!');
       return Upload.LIST_IGNORE;
     }
-    
     return false;
   };
 
@@ -97,7 +123,7 @@ function Step3UserData({ onNext, onPrev, initialValues }) {
         birthDate: values.birthDate ? values.birthDate.format('YYYY-MM-DD') : null,
         avatar: avatarData
       };
-      
+
       await onNext({ user: userData });
     } catch (error) {
       console.error('Error al guardar datos:', error);
@@ -109,20 +135,16 @@ function Step3UserData({ onNext, onPrev, initialValues }) {
 
   const handlePrev = () => {
     const currentValues = form.getFieldsValue();
-    
-    // Preparar datos del avatar para retroceder
+
     let avatarData = null;
     if (fileList.length > 0) {
       const file = fileList[0];
-      // Si es un archivo subido (nuevo)
       if (file.originFileObj) {
         avatarData = {
           originFileObj: file.originFileObj,
-          url: URL.createObjectURL(file.originFileObj) // Crear URL temporal
+          url: URL.createObjectURL(file.originFileObj)
         };
-      } 
-      // Si es una URL existente
-      else if (file.url) {
+      } else if (file.url) {
         avatarData = file.url;
       }
     }

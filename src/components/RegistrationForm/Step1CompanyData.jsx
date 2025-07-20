@@ -11,7 +11,6 @@ import {
 import axios from 'axios';
 import { useSaveProspectData } from '../hooks/useSaveProspectData';
 
-
 const { Option } = Select;
 const { TextArea } = Input;
 
@@ -273,7 +272,9 @@ useEffect(() => {
 
   const [form] = Form.useForm();
   const [fileList, setFileList] = useState([]);
-  useSaveProspectData(form, fileList, ciudad);
+  const [phones, setPhones] = useState([]);
+  useSaveProspectData(form, fileList, ciudad, phones);
+
 
 
   // Cargar valores iniciales
@@ -316,9 +317,8 @@ useEffect(() => {
       address: values.address,
       suburb: values.neighborhood,
       postal_code: values.zipCode,
-      fk_prospect_status_id: 1, // fijo o según lógica
+      fk_prospect_status_id: 1,
       fk_city_code_id: ciudad || '',
-
       logo_path: fileList[0]?.name || '',
       latitud: '',
       longitud: '',
@@ -328,24 +328,12 @@ useEffect(() => {
       deleted_at: null,
     };
 
-    console.log('Datos enviados al backend:', payload); // 👈 Aquí se imprime el payload
-
-    // const response = await axios.post('http://localhost:3000/prospects', payload);
-
-    // message.success('Prospecto creado correctamente');
-    // onNext(response.data); // continúa al siguiente paso
-
     console.log('Simulación de envío, datos:', payload);
     message.success('Datos guardados localmente (no se envió al servidor)');
-    onNext(payload); // sigue al siguiente paso si aún deseas avanzar
-
-    message.success('Prospecto creado correctamente');
-    onNext(response.data); // continúa al siguiente paso
-    console.log('Respuesta del backend:', response.data);
-
+    onNext(payload);
   } catch (error) {
-    console.error('Error al crear el prospecto:', error);
-    message.error('Error al enviar los datos al servidor');
+    console.error('Error al procesar los datos:', error);
+    message.error('Error inesperado');
   }
 };
 
@@ -524,7 +512,7 @@ useEffect(() => {
             }
           ]}
         >
-          <PhoneInput />
+          <PhoneInput value={phones} onChange={setPhones} />
         </Form.Item>
 
         {/* Logo corporativo */}

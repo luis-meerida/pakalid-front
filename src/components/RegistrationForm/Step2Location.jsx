@@ -121,14 +121,18 @@ function Step2Location({ onNext, onPrev, initialValues }) {
   const { lat, lng } = values.location;
   const zoom = mapRef.current?.getZoom?.() || 15;
 
-  onNext({
-    location: {
-      ...values.location,
-      latitud: lat.toString(),
-      longitud: lng.toString(),
-      zoom: zoom.toString(),
-    },
-  });
+  const locationData = {
+    ...values.location,
+    latitud: lat.toString(),
+    longitud: lng.toString(),
+    zoom: zoom.toString(),
+  };
+
+  // Guardar en localStorage
+  saveLocationToLocalStorage(locationData);
+
+  // Pasar al siguiente paso
+  onNext({ location: locationData });
 };
 
   const handleGoBack = () => {
@@ -138,6 +142,17 @@ function Step2Location({ onNext, onPrev, initialValues }) {
     // Pasar los datos al paso anterior
     onPrev({ location: currentValues.location });
   };
+
+  const saveLocationToLocalStorage = (location) => {
+  const storedData = JSON.parse(localStorage.getItem('prospectData')) || {};
+  const updatedData = {
+    ...storedData,
+    latitud: location.latitud,
+    longitud: location.longitud,
+    zoom: location.zoom,
+  };
+  localStorage.setItem('prospectData', JSON.stringify(updatedData));
+};
 
   return (
     <Card>
@@ -210,5 +225,6 @@ function Step2Location({ onNext, onPrev, initialValues }) {
     </Card>
   );
 }
+console.log(localStorage.getItem('prospectData'));
 
 export default Step2Location;
