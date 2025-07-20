@@ -1,5 +1,7 @@
 import { Button, Card, Form, Input, Select, Row, Col, message } from 'antd';
 import { useState, useEffect } from 'react';
+import { getTaxRegimes, getCfdiUses } from '../../api/tax-catalogs.api';
+
 
 const { Option } = Select;
 
@@ -28,7 +30,24 @@ function Step4FiscalData({ onPrev, onFinish, initialValues }) {
   const [cfdiUses, setCfdiUses] = useState([]);
 
   // Cargar valores iniciales
-  useEffect(() => {
+
+useEffect(() => {
+  async function fetchCatalogs() {
+    try {
+      const [regimes, cfdi] = await Promise.all([getTaxRegimes(), getCfdiUses()]);
+      console.log('Tax regimes loaded:', regimes);
+      console.log('CFDI uses loaded:', cfdi);
+      setTaxRegimes(regimes);
+      setCfdiUses(cfdi);
+    } catch (error) {
+      console.error('Error al cargar catálogos fiscales', error);
+      message.error('No se pudieron cargar los catálogos fiscales');
+    }
+  }
+  fetchCatalogs();
+}, []); 
+
+useEffect(() => {
   form.resetFields();
 
   if (initialValues?.fiscal) {
@@ -42,22 +61,6 @@ function Step4FiscalData({ onPrev, onFinish, initialValues }) {
       cfdiUse: initialValues.fiscal.cfdiUse || undefined
     });
   }
-
-  async function fetchCatalogs() {
-    try {
-      const [regimesRes, cfdiUsesRes] = await Promise.all([
-        getTaxRegimes(),
-        getCfdiUses()
-      ]);
-      setTaxRegimes(regimesRes.data);
-      setCfdiUses(cfdiUsesRes.data);
-    } catch (error) {
-      console.error('Error al cargar catálogos fiscales', error);
-      message.error('No se pudieron cargar los catálogos fiscales');
-    }
-  }
-
-  fetchCatalogs();
 }, [initialValues, form]);
 
   const handleSubmit = async (values) => {
